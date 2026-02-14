@@ -106,7 +106,19 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
-  <script src="firebase-config.js" type="module"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAiX5hNA0nHE5Ose3XoHY84n3y99pdL4F8",
+      authDomain: "aid-connect-2059d.firebaseapp.com",
+      projectId: "aid-connect-2059d",
+      storageBucket: "aid-connect-2059d.firebasestorage.app",
+      messagingSenderId: "214156347220",
+      appId: "1:214156347220:web:bbde9a71c36119b1db6ac1",
+      measurementId: "G-EFGWRRGVJ4"
+    };
+    firebase.initializeApp(firebaseConfig);
+    firebase.auth().languageCode = 'he';
+  </script>
   <script src="js/auth.js"></script>
 </body>
 </html>
