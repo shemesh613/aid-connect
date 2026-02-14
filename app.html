@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#1976D2">
   <meta name="description" content="Aid Connect - שיגור משימות לקהילה">
   <link rel="manifest" href="manifest.json">
@@ -15,79 +15,87 @@
 </head>
 <body>
 
+  <!-- Skip to main content -->
+  <a href="#main-content" class="skip-link">דלג לתוכן הראשי</a>
+
+  <!-- Screen reader announcements -->
+  <div id="a11y-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
   <!-- Header -->
-  <header class="app-header">
+  <header class="app-header" role="banner">
     <div class="header-title">
-      <span class="material-icons-round">volunteer_activism</span>
+      <span class="material-icons-round" aria-hidden="true">volunteer_activism</span>
       <h1>Aid Connect</h1>
     </div>
     <div class="header-user">
-      <span id="header-notification-badge" class="header-badge" style="display:none;">0</span>
-      <button class="btn-icon" onclick="navigateTo('profile')" style="border:none; background:rgba(255,255,255,0.2); color:white;">
-        <span class="material-icons-round">person</span>
+      <span id="header-notification-badge" class="header-badge" style="display:none;" aria-label="התראות חדשות" role="status">0</span>
+      <button class="btn-icon" onclick="navigateTo('profile')" style="border:none; background:rgba(255,255,255,0.2); color:white;" aria-label="פרופיל משתמש">
+        <span class="material-icons-round" aria-hidden="true">person</span>
       </button>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="app-content">
+  <main class="app-content" id="main-content" role="main" tabindex="-1">
 
     <!-- ==================== -->
     <!-- VOLUNTEER VIEWS      -->
     <!-- ==================== -->
 
     <!-- View: Open Tasks (Volunteer) -->
-    <div id="view-tasks" class="view active">
+    <div id="view-tasks" class="view active" role="region" aria-label="משימות פתוחות">
       <!-- Notification Permission Prompt -->
-      <div id="notification-prompt" class="notification-prompt" style="display:none;">
-        <span class="material-icons-round">notifications_active</span>
+      <div id="notification-prompt" class="notification-prompt" style="display:none;" role="alert">
+        <span class="material-icons-round" aria-hidden="true">notifications_active</span>
         <p>קבל התראות על משימות חדשות בזמן אמת</p>
-        <button class="btn btn-primary btn-sm" onclick="requestNotificationPermission()">
-          <span class="material-icons-round">check</span>
+        <button class="btn btn-primary btn-sm" onclick="requestNotificationPermission()" aria-label="אפשר קבלת התראות">
+          <span class="material-icons-round" aria-hidden="true">check</span>
           אפשר התראות
         </button>
       </div>
 
       <!-- Filter Chips -->
-      <div class="filter-chips">
-        <button class="chip active" data-filter="all" onclick="filterTasks('all')">הכל</button>
-        <button class="chip" data-filter="medical" onclick="filterTasks('medical')">🏥 רפואה</button>
-        <button class="chip" data-filter="transport" onclick="filterTasks('transport')">🚗 הסעה</button>
-        <button class="chip" data-filter="shopping" onclick="filterTasks('shopping')">🛒 קניות</button>
-        <button class="chip" data-filter="general" onclick="filterTasks('general')">🤝 עזרה</button>
+      <div class="filter-chips" role="toolbar" aria-label="סינון משימות לפי סוג">
+        <button class="chip active" data-filter="all" onclick="filterTasks('all')" aria-pressed="true" aria-label="הצג הכל">הכל</button>
+        <button class="chip" data-filter="medical" onclick="filterTasks('medical')" aria-pressed="false" aria-label="סנן לפי רפואה">🏥 רפואה</button>
+        <button class="chip" data-filter="transport" onclick="filterTasks('transport')" aria-pressed="false" aria-label="סנן לפי הסעה">🚗 הסעה</button>
+        <button class="chip" data-filter="shopping" onclick="filterTasks('shopping')" aria-pressed="false" aria-label="סנן לפי קניות">🛒 קניות</button>
+        <button class="chip" data-filter="general" onclick="filterTasks('general')" aria-pressed="false" aria-label="סנן לפי עזרה כללית">🤝 עזרה</button>
       </div>
 
       <!-- Tasks List -->
       <div class="section-header">
         <div class="section-title">
-          <span class="material-icons-round">assignment</span>
-          <span>משימות פתוחות</span>
+          <span class="material-icons-round" aria-hidden="true">assignment</span>
+          <h2 class="sr-only">משימות פתוחות</h2>
+          <span aria-hidden="true">משימות פתוחות</span>
         </div>
-        <span id="open-tasks-count" class="chip">0</span>
+        <span id="open-tasks-count" class="chip" aria-label="מספר משימות פתוחות" role="status">0</span>
       </div>
-      <div id="tasks-list" class="task-list">
+      <div id="tasks-list" class="task-list" role="list" aria-label="רשימת משימות פתוחות" aria-live="polite">
         <!-- Tasks loaded dynamically -->
       </div>
-      <div id="tasks-empty" class="empty-state" style="display:none;">
-        <span class="material-icons-round">check_circle</span>
+      <div id="tasks-empty" class="empty-state" style="display:none;" role="status">
+        <span class="material-icons-round" aria-hidden="true">check_circle</span>
         <p>אין משימות פתוחות כרגע</p>
         <small>משימות חדשות יופיעו כאן</small>
       </div>
     </div>
 
     <!-- View: My Tasks (Volunteer) -->
-    <div id="view-my-tasks" class="view">
+    <div id="view-my-tasks" class="view" role="region" aria-label="המשימות שלי">
       <div class="section-header">
         <div class="section-title">
-          <span class="material-icons-round">assignment_ind</span>
-          <span>המשימות שלי</span>
+          <span class="material-icons-round" aria-hidden="true">assignment_ind</span>
+          <h2 class="sr-only">המשימות שלי</h2>
+          <span aria-hidden="true">המשימות שלי</span>
         </div>
       </div>
-      <div id="my-tasks-list" class="task-list">
+      <div id="my-tasks-list" class="task-list" role="list" aria-label="רשימת המשימות שלי" aria-live="polite">
         <!-- My tasks loaded dynamically -->
       </div>
-      <div id="my-tasks-empty" class="empty-state" style="display:none;">
-        <span class="material-icons-round">volunteer_activism</span>
+      <div id="my-tasks-empty" class="empty-state" style="display:none;" role="status">
+        <span class="material-icons-round" aria-hidden="true">volunteer_activism</span>
         <p>עדיין לא לקחת משימות</p>
         <small>לחץ "אני לוקח!" על משימה כדי להתחיל</small>
       </div>
@@ -98,22 +106,22 @@
     <!-- ==================== -->
 
     <!-- View: Dashboard (Admin) -->
-    <div id="view-dashboard" class="view">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-number" id="stat-total">0</div>
+    <div id="view-dashboard" class="view" role="region" aria-label="לוח בקרה">
+      <div class="stats-grid" role="group" aria-label="סטטיסטיקות משימות">
+        <div class="stat-card" role="figure" aria-label="סה&quot;כ משימות">
+          <div class="stat-number" id="stat-total" aria-live="polite">0</div>
           <div class="stat-label">סה"כ משימות</div>
         </div>
-        <div class="stat-card active">
-          <div class="stat-number" id="stat-open">0</div>
+        <div class="stat-card active" role="figure" aria-label="משימות פתוחות">
+          <div class="stat-number" id="stat-open" aria-live="polite">0</div>
           <div class="stat-label">פתוחות</div>
         </div>
-        <div class="stat-card urgent">
-          <div class="stat-number" id="stat-urgent">0</div>
+        <div class="stat-card urgent" role="figure" aria-label="משימות דחופות">
+          <div class="stat-number" id="stat-urgent" aria-live="polite">0</div>
           <div class="stat-label">דחופות</div>
         </div>
-        <div class="stat-card done">
-          <div class="stat-number" id="stat-completed">0</div>
+        <div class="stat-card done" role="figure" aria-label="משימות שהושלמו">
+          <div class="stat-number" id="stat-completed" aria-live="polite">0</div>
           <div class="stat-label">הושלמו</div>
         </div>
       </div>
@@ -121,82 +129,85 @@
       <!-- Recent tasks -->
       <div class="section-header">
         <div class="section-title">
-          <span class="material-icons-round">history</span>
-          <span>משימות אחרונות</span>
+          <span class="material-icons-round" aria-hidden="true">history</span>
+          <h2 class="sr-only">משימות אחרונות</h2>
+          <span aria-hidden="true">משימות אחרונות</span>
         </div>
       </div>
-      <div id="admin-tasks-list" class="task-list">
+      <div id="admin-tasks-list" class="task-list" role="list" aria-label="רשימת משימות אחרונות" aria-live="polite">
         <!-- Admin tasks loaded dynamically -->
       </div>
     </div>
 
     <!-- View: Create Task (Admin) -->
-    <div id="view-create" class="view">
+    <div id="view-create" class="view" role="region" aria-label="יצירת משימה חדשה">
       <div class="create-task-section">
-        <h3>
-          <span class="material-icons-round">add_task</span>
+        <h2>
+          <span class="material-icons-round" aria-hidden="true">add_task</span>
           משימה חדשה
-        </h3>
+        </h2>
 
         <div class="input-group">
-          <label>סוג משימה</label>
-          <div class="task-type-selector">
-            <button class="type-btn" data-type="medical" onclick="selectTaskType('medical')">🏥 רפואה</button>
-            <button class="type-btn" data-type="transport" onclick="selectTaskType('transport')">🚗 הסעה</button>
-            <button class="type-btn" data-type="shopping" onclick="selectTaskType('shopping')">🛒 קניות</button>
-            <button class="type-btn" data-type="general" onclick="selectTaskType('general')">🤝 עזרה</button>
+          <label id="task-type-label">סוג משימה</label>
+          <div class="task-type-selector" role="radiogroup" aria-labelledby="task-type-label">
+            <button class="type-btn" data-type="medical" onclick="selectTaskType('medical')" role="radio" aria-checked="false" aria-label="רפואה">🏥 רפואה</button>
+            <button class="type-btn" data-type="transport" onclick="selectTaskType('transport')" role="radio" aria-checked="false" aria-label="הסעה">🚗 הסעה</button>
+            <button class="type-btn" data-type="shopping" onclick="selectTaskType('shopping')" role="radio" aria-checked="false" aria-label="קניות">🛒 קניות</button>
+            <button class="type-btn" data-type="general" onclick="selectTaskType('general')" role="radio" aria-checked="false" aria-label="עזרה כללית">🤝 עזרה</button>
           </div>
         </div>
 
         <div class="input-group">
           <label for="task-title">כותרת</label>
-          <input type="text" id="task-title" placeholder="תיאור קצר של המשימה">
+          <input type="text" id="task-title" placeholder="תיאור קצר של המשימה" aria-required="true">
         </div>
 
         <div class="input-group">
           <label for="task-desc">פירוט</label>
-          <textarea id="task-desc" placeholder="פרטים נוספים, הנחיות מיוחדות..."></textarea>
+          <textarea id="task-desc" placeholder="פרטים נוספים, הנחיות מיוחדות..." aria-describedby="task-desc-hint"></textarea>
+          <span id="task-desc-hint" class="sr-only">הוסף פרטים נוספים והנחיות מיוחדות לביצוע המשימה</span>
         </div>
 
         <div class="input-group">
-          <label>דחיפות</label>
-          <div class="urgency-selector">
-            <button class="urgency-btn high" data-urgency="high" onclick="selectUrgency('high')">🔴 גבוהה</button>
-            <button class="urgency-btn medium" data-urgency="medium" onclick="selectUrgency('medium')">🟠 בינונית</button>
-            <button class="urgency-btn low" data-urgency="low" onclick="selectUrgency('low')">🟢 נמוכה</button>
+          <label id="urgency-label">דחיפות</label>
+          <div class="urgency-selector" role="radiogroup" aria-labelledby="urgency-label">
+            <button class="urgency-btn high" data-urgency="high" onclick="selectUrgency('high')" role="radio" aria-checked="false" aria-label="דחיפות גבוהה">🔴 גבוהה</button>
+            <button class="urgency-btn medium" data-urgency="medium" onclick="selectUrgency('medium')" role="radio" aria-checked="false" aria-label="דחיפות בינונית">🟠 בינונית</button>
+            <button class="urgency-btn low" data-urgency="low" onclick="selectUrgency('low')" role="radio" aria-checked="false" aria-label="דחיפות נמוכה">🟢 נמוכה</button>
           </div>
         </div>
 
         <div class="input-group">
-          <label>מיקום</label>
-          <div class="location-inputs">
-            <input type="text" id="task-location-from" placeholder="מ... (כתובת מוצא)">
-            <input type="text" id="task-location-to" placeholder="אל... (כתובת יעד)">
+          <label id="location-label">מיקום</label>
+          <div class="location-inputs" role="group" aria-labelledby="location-label">
+            <input type="text" id="task-location-from" placeholder="מ... (כתובת מוצא)" aria-label="כתובת מוצא">
+            <input type="text" id="task-location-to" placeholder="אל... (כתובת יעד)" aria-label="כתובת יעד">
           </div>
         </div>
 
         <div class="input-group">
           <label for="task-contact">טלפון ליצירת קשר</label>
-          <input type="tel" id="task-contact" placeholder="050-1234567">
+          <input type="tel" id="task-contact" placeholder="050-1234567" autocomplete="tel">
         </div>
 
-        <button id="btn-create-task" class="btn btn-primary btn-full" onclick="createTask()">
-          <span class="material-icons-round">send</span>
+        <button id="btn-create-task" class="btn btn-primary btn-full" onclick="createTask()" aria-label="שגר משימה חדשה">
+          <span class="material-icons-round" aria-hidden="true">send</span>
           שגר משימה
         </button>
       </div>
     </div>
 
     <!-- View: Volunteers Management (Admin) -->
-    <div id="view-volunteers" class="view">
+    <div id="view-volunteers" class="view" role="region" aria-label="ניהול מתנדבים">
       <div class="section-header">
         <div class="section-title">
-          <span class="material-icons-round">groups</span>
-          <span>מתנדבים</span>
+          <span class="material-icons-round" aria-hidden="true">groups</span>
+          <h2 class="sr-only">מתנדבים</h2>
+          <span aria-hidden="true">מתנדבים</span>
         </div>
-        <span id="volunteers-count" class="chip">0</span>
+        <span id="volunteers-count" class="chip" aria-label="מספר מתנדבים" role="status">0</span>
       </div>
-      <div id="volunteers-list" class="task-list">
+      <div id="volunteers-list" class="task-list" role="list" aria-label="רשימת מתנדבים" aria-live="polite">
         <!-- Volunteers loaded dynamically -->
       </div>
     </div>
@@ -206,52 +217,56 @@
     <!-- ==================== -->
 
     <!-- View: Profile -->
-    <div id="view-profile" class="view">
-      <div class="profile-card">
-        <div class="profile-avatar" id="profile-avatar">?</div>
-        <div class="profile-name" id="profile-name">-</div>
+    <div id="view-profile" class="view" role="region" aria-label="פרופיל משתמש">
+      <div class="profile-card" role="group" aria-label="פרטי המשתמש">
+        <div class="profile-avatar" id="profile-avatar" aria-hidden="true">?</div>
+        <div class="profile-name" id="profile-name" role="heading" aria-level="2">-</div>
         <div class="profile-role" id="profile-role">-</div>
-        <div class="profile-stats">
+        <div class="profile-stats" role="group" aria-label="סטטיסטיקות משתמש">
           <div class="profile-stat-item">
-            <div class="profile-stat-value" id="profile-tasks-taken">0</div>
+            <div class="profile-stat-value" id="profile-tasks-taken" aria-live="polite">0</div>
             <div class="profile-stat-label">נלקחו</div>
           </div>
           <div class="profile-stat-item">
-            <div class="profile-stat-value" id="profile-tasks-completed">0</div>
+            <div class="profile-stat-value" id="profile-tasks-completed" aria-live="polite">0</div>
             <div class="profile-stat-label">הושלמו</div>
           </div>
           <div class="profile-stat-item">
-            <div class="profile-stat-value" id="profile-tasks-created">0</div>
+            <div class="profile-stat-value" id="profile-tasks-created" aria-live="polite">0</div>
             <div class="profile-stat-label">נוצרו</div>
           </div>
         </div>
       </div>
 
-      <div class="profile-actions">
-        <button class="profile-action-btn" onclick="toggleNotifications()">
-          <span class="material-icons-round">notifications</span>
+      <div class="profile-actions" role="group" aria-label="פעולות פרופיל">
+        <button class="profile-action-btn" onclick="toggleNotifications()" aria-label="הגדרות התראות">
+          <span class="material-icons-round" aria-hidden="true">notifications</span>
           <span>הגדרות התראות</span>
         </button>
-        <button id="btn-org-settings" class="profile-action-btn" onclick="openOrgSettings()" style="display:none;">
-          <span class="material-icons-round">edit</span>
+        <button id="btn-org-settings" class="profile-action-btn" onclick="openOrgSettings()" style="display:none;" aria-label="שינוי שם הארגון">
+          <span class="material-icons-round" aria-hidden="true">edit</span>
           <span>שינוי שם הארגון</span>
         </button>
-        <button class="profile-action-btn" onclick="shareApp()">
-          <span class="material-icons-round">share</span>
+        <button class="profile-action-btn" onclick="shareApp()" aria-label="שתף את האפליקציה">
+          <span class="material-icons-round" aria-hidden="true">share</span>
           <span>שתף את האפליקציה</span>
         </button>
-        <button class="profile-action-btn danger" onclick="logout()">
-          <span class="material-icons-round">logout</span>
+        <a href="accessibility-statement.html" class="profile-action-btn" aria-label="הצהרת נגישות">
+          <span class="material-icons-round" aria-hidden="true">accessible</span>
+          <span>הצהרת נגישות</span>
+        </a>
+        <button class="profile-action-btn danger" onclick="logout()" aria-label="התנתקות מהמערכת">
+          <span class="material-icons-round" aria-hidden="true">logout</span>
           <span>התנתקות</span>
         </button>
       </div>
 
       <!-- Developer Branding -->
-      <div class="developer-branding app-branding">
-        <img src="icons/developer-logo.jpeg" alt="שמשון ג'יקוב AI" class="developer-logo">
+      <div class="developer-branding app-branding" role="contentinfo" aria-label="מידע על המפתח">
+        <img src="icons/developer-logo.jpeg" alt="לוגו שמשון ג'יקוב AI" class="developer-logo">
         <div class="developer-info">
           <span class="developer-name">פותח ע"י שמשון ג'יקוב AI</span>
-          <a href="tel:0526953500" class="developer-phone">📞 להזמנות: 052-695-3500</a>
+          <a href="tel:0526953500" class="developer-phone" aria-label="טלפון להזמנות: 052-695-3500">📞 להזמנות: 052-695-3500</a>
         </div>
       </div>
     </div>
@@ -259,63 +274,64 @@
   </main>
 
   <!-- Bottom Navigation - Volunteer -->
-  <nav id="nav-volunteer" class="bottom-nav" style="display:none;">
-    <button class="nav-item active" data-view="tasks" onclick="navigateTo('tasks')">
-      <span class="material-icons-round">assignment</span>
+  <nav id="nav-volunteer" class="bottom-nav" style="display:none;" role="navigation" aria-label="ניווט ראשי - מתנדב">
+    <button class="nav-item active" data-view="tasks" onclick="navigateTo('tasks')" aria-label="משימות פתוחות" aria-current="page">
+      <span class="material-icons-round" aria-hidden="true">assignment</span>
       <span>משימות</span>
-      <span class="nav-badge" id="nav-badge-tasks" style="display:none;">0</span>
+      <span class="nav-badge" id="nav-badge-tasks" style="display:none;" aria-label="משימות חדשות" role="status">0</span>
     </button>
-    <button class="nav-item" data-view="my-tasks" onclick="navigateTo('my-tasks')">
-      <span class="material-icons-round">assignment_ind</span>
+    <button class="nav-item" data-view="my-tasks" onclick="navigateTo('my-tasks')" aria-label="המשימות שלי">
+      <span class="material-icons-round" aria-hidden="true">assignment_ind</span>
       <span>שלי</span>
     </button>
-    <button class="nav-item" data-view="profile" onclick="navigateTo('profile')">
-      <span class="material-icons-round">person</span>
+    <button class="nav-item" data-view="profile" onclick="navigateTo('profile')" aria-label="פרופיל">
+      <span class="material-icons-round" aria-hidden="true">person</span>
       <span>פרופיל</span>
     </button>
   </nav>
 
   <!-- Bottom Navigation - Admin -->
-  <nav id="nav-admin" class="bottom-nav" style="display:none;">
-    <button class="nav-item active" data-view="dashboard" onclick="navigateTo('dashboard')">
-      <span class="material-icons-round">dashboard</span>
+  <nav id="nav-admin" class="bottom-nav" style="display:none;" role="navigation" aria-label="ניווט ראשי - מנהל">
+    <button class="nav-item active" data-view="dashboard" onclick="navigateTo('dashboard')" aria-label="לוח בקרה" aria-current="page">
+      <span class="material-icons-round" aria-hidden="true">dashboard</span>
       <span>לוח בקרה</span>
     </button>
-    <button class="nav-item" data-view="create" onclick="navigateTo('create')">
-      <span class="material-icons-round">add_circle</span>
+    <button class="nav-item" data-view="create" onclick="navigateTo('create')" aria-label="יצירת משימה חדשה">
+      <span class="material-icons-round" aria-hidden="true">add_circle</span>
       <span>משימה חדשה</span>
     </button>
-    <button class="nav-item" data-view="volunteers" onclick="navigateTo('volunteers')">
-      <span class="material-icons-round">groups</span>
+    <button class="nav-item" data-view="volunteers" onclick="navigateTo('volunteers')" aria-label="ניהול מתנדבים">
+      <span class="material-icons-round" aria-hidden="true">groups</span>
       <span>מתנדבים</span>
     </button>
-    <button class="nav-item" data-view="profile" onclick="navigateTo('profile')">
-      <span class="material-icons-round">person</span>
+    <button class="nav-item" data-view="profile" onclick="navigateTo('profile')" aria-label="פרופיל">
+      <span class="material-icons-round" aria-hidden="true">person</span>
       <span>פרופיל</span>
     </button>
   </nav>
 
   <!-- FAB for Admin (quick create) -->
-  <button id="fab-create" class="fab" style="display:none;" onclick="navigateTo('create')">
-    <span class="material-icons-round">add</span>
+  <button id="fab-create" class="fab" style="display:none;" onclick="navigateTo('create')" aria-label="יצירת משימה חדשה">
+    <span class="material-icons-round" aria-hidden="true">add</span>
   </button>
 
   <!-- Task Detail Modal -->
-  <div id="modal-task-detail" class="modal-overlay" onclick="closeModal(event)">
+  <div id="modal-task-detail" class="modal-overlay" onclick="closeModal(event)" role="dialog" aria-modal="true" aria-label="פרטי משימה" aria-hidden="true">
     <div class="modal-content" onclick="event.stopPropagation()">
-      <div class="modal-handle"></div>
-      <div id="task-detail-content" class="task-detail">
+      <div class="modal-handle" aria-hidden="true"></div>
+      <button class="sr-only" id="modal-close-sr" onclick="closeModal(event)" aria-label="סגור חלון פרטי משימה">סגור</button>
+      <div id="task-detail-content" class="task-detail" aria-live="polite">
         <!-- Filled dynamically -->
       </div>
     </div>
   </div>
 
   <!-- Org Settings Modal -->
-  <div id="modal-org-settings" class="modal-overlay" onclick="closeOrgSettings(event)">
+  <div id="modal-org-settings" class="modal-overlay" onclick="closeOrgSettings(event)" role="dialog" aria-modal="true" aria-labelledby="org-settings-title" aria-hidden="true">
     <div class="modal-content" onclick="event.stopPropagation()">
-      <div class="modal-handle"></div>
-      <h3 style="margin-bottom:16px; display:flex; align-items:center; gap:8px;">
-        <span class="material-icons-round">settings</span>
+      <div class="modal-handle" aria-hidden="true"></div>
+      <h3 id="org-settings-title" style="margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+        <span class="material-icons-round" aria-hidden="true">settings</span>
         הגדרות ארגון
       </h3>
       <div class="input-group">
@@ -328,30 +344,30 @@
       </div>
       <div class="input-group">
         <label for="org-phone">טלפון ליצירת קשר</label>
-        <input type="tel" id="org-phone" placeholder="050-1234567">
+        <input type="tel" id="org-phone" placeholder="050-1234567" autocomplete="tel">
       </div>
-      <button class="btn btn-primary btn-full" onclick="saveOrgSettings()">
-        <span class="material-icons-round">save</span>
+      <button class="btn btn-primary btn-full" onclick="saveOrgSettings()" aria-label="שמור הגדרות ארגון">
+        <span class="material-icons-round" aria-hidden="true">save</span>
         שמור
       </button>
     </div>
   </div>
 
   <!-- Toast -->
-  <div id="toast" class="toast"></div>
+  <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
   <!-- Install Banner -->
-  <div id="install-banner" class="install-banner">
-    <div class="install-banner-icon">
+  <div id="install-banner" class="install-banner" role="complementary" aria-label="התקנת האפליקציה">
+    <div class="install-banner-icon" aria-hidden="true">
       <span class="material-icons-round">download</span>
     </div>
     <div class="install-banner-text">
       <strong>התקן את Aid Connect</strong>
       <small>גישה מהירה מהמסך הראשי</small>
     </div>
-    <button class="btn btn-primary btn-sm" onclick="installApp()">התקן</button>
-    <button class="btn-icon" onclick="dismissInstallBanner()" style="border:none;">
-      <span class="material-icons-round">close</span>
+    <button class="btn btn-primary btn-sm" onclick="installApp()" aria-label="התקן את האפליקציה">התקן</button>
+    <button class="btn-icon" onclick="dismissInstallBanner()" style="border:none;" aria-label="סגור באנר התקנה">
+      <span class="material-icons-round" aria-hidden="true">close</span>
     </button>
   </div>
 
@@ -384,5 +400,6 @@
   <script src="js/notifications.js"></script>
   <script src="js/tasks.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/accessibility.js"></script>
 </body>
 </html>
