@@ -1,0 +1,28 @@
+name: Send Push Notification
+
+on:
+  repository_dispatch:
+    types: [task_created, task_taken, task_completed]
+
+jobs:
+  send-notification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install firebase-admin@12
+        working-directory: scripts
+
+      - name: Send notification
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          NOTIFICATION_PAYLOAD: ${{ toJson(github.event.client_payload) }}
+        run: node send-notifications.js
+        working-directory: scripts

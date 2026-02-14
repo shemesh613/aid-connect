@@ -28,6 +28,46 @@ let selectedTaskType = null;
 let selectedUrgency = null;
 let currentFilter = 'all';
 let tasksUnsubscribe = null;
+let notifyConfig = null;
+
+// Load notification config (for admins)
+async function loadNotifyConfig() {
+  try {
+    const doc = await db.collection('config').doc('notification').get();
+    if (doc.exists) notifyConfig = doc.data();
+  } catch (e) { /* non-admin or not configured */ }
+}
+
+// Trigger push notification via GitHub Actions
+async function triggerPushNotification(eventType, taskId, taskData) {
+  if (!notifyConfig) await loadNotifyConfig();
+  if (!notifyConfig || !notifyConfig.ghToken) return;
+
+  try {
+    const resp = await fetch(
+      `https://api.github.com/repos/${notifyConfig.ghOwner}/${notifyConfig.ghRepo}/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `token ${notifyConfig.ghToken}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          event_type: eventType,
+          client_payload: { eventType, taskId, taskData }
+        })
+      }
+    );
+    if (resp.status === 204) {
+      console.log('Push notification triggered:', eventType);
+    } else {
+      console.warn('Push trigger response:', resp.status);
+    }
+  } catch (err) {
+    console.error('Push trigger error:', err);
+  }
+}
 
 // Select task type (create form)
 function selectTaskType(type) {
@@ -82,11 +122,20 @@ async function createTask() {
       completedAt: null
     };
 
-    await db.collection('tasks').add(task);
+    const docRef = await db.collection('tasks').add(task);
 
     // Update user stats
     await db.collection('users').doc(user.uid).update({
       tasksCreated: firebase.firestore.FieldValue.increment(1)
+    });
+
+    // Trigger push notification to volunteers
+    triggerPushNotification('task_created', docRef.id, {
+      type: task.type,
+      title: task.title,
+      urgency: task.urgency,
+      createdBy: user.uid,
+      createdByName: userData.name
     });
 
     // Clear form
@@ -140,6 +189,15 @@ async function takeTask(taskId) {
       });
     });
 
+    // Notify admin
+    const taskDoc = await db.collection('tasks').doc(taskId).get();
+    const taskData = taskDoc.data();
+    triggerPushNotification('task_taken', taskId, {
+      title: taskData.title,
+      takenByName: userData.name,
+      createdBy: taskData.createdBy
+    });
+
     showToast('לקחת את המשימה! 💪');
     closeModal();
 
@@ -161,6 +219,15 @@ async function completeTask(taskId) {
 
     await db.collection('users').doc(user.uid).update({
       tasksCompleted: firebase.firestore.FieldValue.increment(1)
+    });
+
+    // Notify admin
+    const taskDoc = await db.collection('tasks').doc(taskId).get();
+    const taskData = taskDoc.data();
+    triggerPushNotification('task_completed', taskId, {
+      title: taskData.title,
+      takenByName: taskData.takenByName,
+      createdBy: taskData.createdBy
     });
 
     showToast('המשימה הושלמה! 🎉');

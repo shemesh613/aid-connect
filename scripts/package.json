@@ -1,0 +1,7 @@
+{
+  "name": "aid-connect-notifications",
+  "private": true,
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
