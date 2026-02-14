@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users collection
+    match /users/{userId} {
+      // Users can read their own profile
+      allow read: if request.auth != null;
+
+      // Users can create their own profile
+      allow create: if request.auth != null && request.auth.uid == userId;
+
+      // Users can update their own profile
+      allow update: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Tasks collection
+    match /tasks/{taskId} {
+      // All authenticated users can read tasks
+      allow read: if request.auth != null;
+
+      // Only admins can create tasks
+      allow create: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+
+      // Volunteers can take open tasks, admins can update any task
+      allow update: if request.auth != null
+        && (
+          // Admin can do anything
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+          ||
+          // Volunteer can take open tasks
+          (resource.data.status == 'open'
+           && request.resource.data.status == 'taken'
+           && request.resource.data.takenBy == request.auth.uid)
+          ||
+          // Volunteer can complete their own tasks
+          (resource.data.status == 'taken'
+           && resource.data.takenBy == request.auth.uid
+           && request.resource.data.status == 'completed')
+        );
+
+      // No one can delete tasks
+      allow delete: if false;
+    }
+  }
+}

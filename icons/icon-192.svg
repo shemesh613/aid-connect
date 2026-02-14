@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1976D2"/>
+      <stop offset="100%" style="stop-color:#0D47A1"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="40" fill="url(#bg)"/>
+  <!-- Heart with plus -->
+  <g transform="translate(96, 88)" fill="white">
+    <!-- Heart shape -->
+    <path d="M0 28 C0 28, -44 -8, -44 -24 C-44 -40, -24 -48, 0 -24 C24 -48, 44 -40, 44 -24 C44 -8, 0 28, 0 28Z" fill="white" opacity="0.95"/>
+    <!-- Plus sign -->
+    <rect x="-4" y="-16" width="8" height="24" rx="2" fill="#1976D2"/>
+    <rect x="-12" y="-8" width="24" height="8" rx="2" fill="#1976D2"/>
+  </g>
+  <!-- Hands -->
+  <g transform="translate(96, 130)" fill="white" opacity="0.8">
+    <path d="M-30 0 C-30 0, -20 20, 0 20 C20 20, 30 0, 30 0 L25 8 C25 8, 15 24, 0 24 C-15 24, -25 8, -25 8Z"/>
+  </g>
+  <!-- Text -->
+  <text x="96" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" opacity="0.9">AID CONNECT</text>
+</svg>

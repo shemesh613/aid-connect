@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1976D2">
+  <meta name="description" content="Aid Connect - שיגור משימות לקהילה">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>Aid Connect - התחברות</title>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page">
+
+  <!-- Splash / Login Screen -->
+  <div class="login-container">
+    <div class="login-logo">
+      <div class="logo-icon">
+        <span class="material-icons-round">volunteer_activism</span>
+      </div>
+      <h1>Aid Connect</h1>
+      <p class="login-subtitle">שיגור משימות לקהילה</p>
+    </div>
+
+    <!-- Step 1: Phone Number -->
+    <div id="step-phone" class="login-step active">
+      <div class="input-group">
+        <label for="phone">מספר טלפון</label>
+        <div class="phone-input-wrapper">
+          <span class="phone-prefix">+972</span>
+          <input type="tel" id="phone" placeholder="50-1234567" maxlength="11" autocomplete="tel">
+        </div>
+      </div>
+      <div id="recaptcha-container"></div>
+      <button id="btn-send-otp" class="btn btn-primary btn-full" onclick="sendOTP()">
+        <span class="material-icons-round">send</span>
+        שליחת קוד אימות
+      </button>
+    </div>
+
+    <!-- Step 2: OTP Verification -->
+    <div id="step-otp" class="login-step">
+      <div class="input-group">
+        <label for="otp">קוד אימות (SMS)</label>
+        <input type="number" id="otp" placeholder="123456" maxlength="6" autocomplete="one-time-code">
+      </div>
+      <button id="btn-verify-otp" class="btn btn-primary btn-full" onclick="verifyOTP()">
+        <span class="material-icons-round">verified</span>
+        אימות
+      </button>
+      <button class="btn btn-text" onclick="goToStep('phone')">שליחה מחדש</button>
+    </div>
+
+    <!-- Step 3: Profile Setup (for new users) -->
+    <div id="step-profile" class="login-step">
+      <h2>הרשמה</h2>
+      <div class="input-group">
+        <label for="user-name">שם מלא</label>
+        <input type="text" id="user-name" placeholder="ישראל ישראלי">
+      </div>
+      <div class="input-group">
+        <label>תפקיד</label>
+        <div class="role-selector">
+          <button class="role-btn" data-role="volunteer" onclick="selectRole('volunteer')">
+            <span class="material-icons-round">favorite</span>
+            <span>מתנדב</span>
+            <small>קבלת משימות ועזרה</small>
+          </button>
+          <button class="role-btn" data-role="admin" onclick="selectRole('admin')">
+            <span class="material-icons-round">admin_panel_settings</span>
+            <span>מנהל</span>
+            <small>יצירת וניהול משימות</small>
+          </button>
+        </div>
+      </div>
+      <button id="btn-save-profile" class="btn btn-primary btn-full" onclick="saveProfile()" disabled>
+        <span class="material-icons-round">check_circle</span>
+        כניסה
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div id="step-loading" class="login-step">
+      <div class="loading-spinner"></div>
+      <p>מתחבר...</p>
+    </div>
+
+    <!-- Error -->
+    <div id="login-error" class="error-msg" style="display:none;"></div>
+
+    <!-- Developer Branding -->
+    <div class="developer-branding">
+      <img src="icons/developer-logo.jpeg" alt="שמשון ג'יקוב AI" class="developer-logo">
+      <div class="developer-info">
+        <span class="developer-name">פותח ע"י שמשון ג'יקוב AI</span>
+        <a href="tel:0526953500" class="developer-phone">📞 להזמנות: 052-695-3500</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+  <script src="firebase-config.js" type="module"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
