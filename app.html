@@ -232,6 +232,10 @@
           <span class="material-icons-round">notifications</span>
           <span>הגדרות התראות</span>
         </button>
+        <button id="btn-org-settings" class="profile-action-btn" onclick="openOrgSettings()" style="display:none;">
+          <span class="material-icons-round">edit</span>
+          <span>שינוי שם הארגון</span>
+        </button>
         <button class="profile-action-btn" onclick="shareApp()">
           <span class="material-icons-round">share</span>
           <span>שתף את האפליקציה</span>
@@ -303,6 +307,33 @@
       <div id="task-detail-content" class="task-detail">
         <!-- Filled dynamically -->
       </div>
+    </div>
+  </div>
+
+  <!-- Org Settings Modal -->
+  <div id="modal-org-settings" class="modal-overlay" onclick="closeOrgSettings(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <h3 style="margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+        <span class="material-icons-round">settings</span>
+        הגדרות ארגון
+      </h3>
+      <div class="input-group">
+        <label for="org-name">שם הארגון / האפליקציה</label>
+        <input type="text" id="org-name" placeholder="Aid Connect">
+      </div>
+      <div class="input-group">
+        <label for="org-desc">תיאור קצר</label>
+        <input type="text" id="org-desc" placeholder="שיגור משימות לקהילה">
+      </div>
+      <div class="input-group">
+        <label for="org-phone">טלפון ליצירת קשר</label>
+        <input type="tel" id="org-phone" placeholder="050-1234567">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="saveOrgSettings()">
+        <span class="material-icons-round">save</span>
+        שמור
+      </button>
     </div>
   </div>
 

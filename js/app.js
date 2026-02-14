@@ -64,6 +64,15 @@ function setupUI() {
 
   // Update profile UI
   updateProfileUI();
+
+  // Show org settings button for admins
+  if (currentUserData.role === 'admin') {
+    const orgBtn = document.getElementById('btn-org-settings');
+    if (orgBtn) orgBtn.style.display = '';
+  }
+
+  // Load org settings
+  loadOrgSettings();
 }
 
 function updateProfileUI() {
@@ -301,5 +310,76 @@ async function logout() {
   } catch (error) {
     console.error('Logout error:', error);
     window.location.href = 'index.html';
+  }
+}
+
+// ==========================================
+// ORG SETTINGS (Admin)
+// ==========================================
+
+async function loadOrgSettings() {
+  try {
+    const doc = await db.collection('settings').doc('org').get();
+    if (doc.exists) {
+      const data = doc.data();
+      // Update header title
+      if (data.name) {
+        const titleEl = document.querySelector('.header-title h1');
+        if (titleEl) titleEl.textContent = data.name;
+      }
+    }
+  } catch (e) {
+    console.log('No org settings yet');
+  }
+}
+
+async function openOrgSettings() {
+  // Load current values
+  try {
+    const doc = await db.collection('settings').doc('org').get();
+    if (doc.exists) {
+      const data = doc.data();
+      document.getElementById('org-name').value = data.name || '';
+      document.getElementById('org-desc').value = data.description || '';
+      document.getElementById('org-phone').value = data.phone || '';
+    }
+  } catch (e) {}
+
+  document.getElementById('modal-org-settings').classList.add('active');
+}
+
+function closeOrgSettings(event) {
+  if (event && event.target !== event.currentTarget) return;
+  document.getElementById('modal-org-settings').classList.remove('active');
+}
+
+async function saveOrgSettings() {
+  const name = document.getElementById('org-name').value.trim();
+  const desc = document.getElementById('org-desc').value.trim();
+  const phone = document.getElementById('org-phone').value.trim();
+
+  if (!name) {
+    showToast('נא להזין שם ארגון', 'error');
+    return;
+  }
+
+  try {
+    await db.collection('settings').doc('org').set({
+      name: name,
+      description: desc,
+      phone: phone,
+      updatedBy: currentUser.uid,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Update header immediately
+    const titleEl = document.querySelector('.header-title h1');
+    if (titleEl) titleEl.textContent = name;
+
+    closeOrgSettings();
+    showToast('הגדרות הארגון נשמרו ✅');
+  } catch (error) {
+    console.error('Save org settings error:', error);
+    showToast('שגיאה בשמירה', 'error');
   }
 }
