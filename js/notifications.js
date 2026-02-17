@@ -22,9 +22,28 @@ async function requestNotificationPermission() {
 // Save FCM token to Firestore
 async function saveFCMToken() {
   try {
-    if (!messaging) return;
+    if (!messaging) {
+      console.log('Messaging not available');
+      return;
+    }
 
-    const token = await messaging.getToken({ vapidKey: VAPID_KEY });
+    // Register the firebase-messaging service worker explicitly
+    let swRegistration = null;
+    if ('serviceWorker' in navigator) {
+      try {
+        swRegistration = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+        console.log('FCM SW registered:', swRegistration.scope);
+      } catch (e) {
+        console.error('FCM SW registration failed:', e);
+      }
+    }
+
+    const tokenOptions = { vapidKey: VAPID_KEY };
+    if (swRegistration) {
+      tokenOptions.serviceWorkerRegistration = swRegistration;
+    }
+
+    const token = await messaging.getToken(tokenOptions);
     if (token) {
       const user = auth.currentUser;
       if (user) {
@@ -32,8 +51,10 @@ async function saveFCMToken() {
           fcmToken: token,
           fcmTokenUpdated: firebase.firestore.FieldValue.serverTimestamp()
         });
-        console.log('FCM Token saved');
+        console.log('FCM Token saved:', token.slice(0, 20) + '...');
       }
+    } else {
+      console.log('No FCM token received');
     }
   } catch (error) {
     console.error('FCM Token error:', error);

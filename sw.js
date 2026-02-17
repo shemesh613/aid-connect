@@ -93,11 +93,11 @@ self.addEventListener('push', (event) => {
   const notification = data.notification || {};
   const taskData = data.data || {};
 
-  const title = notification.title || 'Aid Connect - משימה חדשה!';
+  const title = notification.title || 'Aid Connect - קריאה חדשה!';
   const options = {
-    body: notification.body || 'משימה חדשה ממתינה לך',
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    body: notification.body || 'קריאה חדשה ממתינה לך',
+    icon: '/aid-connect/icons/icon-192.png',
+    badge: '/aid-connect/icons/icon-192.png',
     tag: taskData.taskId || 'new-task',
     renotify: true,
     vibrate: [200, 100, 200, 100, 200],
@@ -122,12 +122,12 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
   const taskId = event.notification.data?.taskId;
-  let url = '/app.html';
+  let url = '/aid-connect/app.html';
 
   if (event.action === 'take' && taskId) {
-    url = `/app.html?action=take&task=${taskId}`;
+    url = `/aid-connect/app.html?action=take&task=${taskId}`;
   } else if (taskId) {
-    url = `/app.html?task=${taskId}`;
+    url = `/aid-connect/app.html?task=${taskId}`;
   }
 
   event.waitUntil(
