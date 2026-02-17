@@ -116,7 +116,7 @@ function navigateTo(viewName) {
   // Show/hide FAB on admin
   const fab = document.getElementById('fab-create');
   if (fab && currentUserData?.role === 'admin') {
-    fab.style.display = (viewName === 'dashboard' || viewName === 'volunteers') ? 'flex' : 'none';
+    fab.style.display = (viewName === 'dashboard' || viewName === 'volunteers' || viewName === 'map') ? 'flex' : 'none';
   }
 
   // Initialize map when navigating to it
