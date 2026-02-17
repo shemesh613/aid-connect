@@ -134,6 +134,12 @@ function selectRole(role) {
   selected.classList.add('selected');
   selected.setAttribute('aria-checked', 'true');
   document.getElementById('btn-save-profile').disabled = false;
+
+  // Show/hide admin code field
+  const adminCodeGroup = document.getElementById('admin-code-group');
+  if (adminCodeGroup) {
+    adminCodeGroup.style.display = role === 'admin' ? '' : 'none';
+  }
 }
 
 // Save Profile
@@ -143,6 +149,38 @@ async function saveProfile() {
 
   if (!name) { showError('נא להזין שם'); return; }
   if (!selectedRole) { showError('נא לבחור תפקיד'); return; }
+
+  // Admin code verification
+  if (selectedRole === 'admin') {
+    const adminCode = document.getElementById('admin-code')?.value.trim();
+    try {
+      const orgDoc = await firebase.firestore().collection('settings').doc('org').get();
+      const savedCode = orgDoc.exists ? orgDoc.data().adminCode : null;
+      // If no admin code set yet (first admin), allow. Otherwise verify.
+      if (savedCode && adminCode !== savedCode) {
+        showError('קוד מנהל שגוי'); return;
+      }
+      // If first admin - set a default code
+      if (!savedCode) {
+        await firebase.firestore().collection('settings').doc('org').set({
+          name: 'Aid Connect',
+          description: 'שיגור משימות לקהילה',
+          adminCode: 'admin123',
+          phone: ''
+        });
+      }
+    } catch (e) {
+      // Settings collection might not exist yet - first admin
+      try {
+        await firebase.firestore().collection('settings').doc('org').set({
+          name: 'Aid Connect',
+          description: 'שיגור משימות לקהילה',
+          adminCode: 'admin123',
+          phone: ''
+        });
+      } catch(e2) {}
+    }
+  }
 
   const btn = document.getElementById('btn-save-profile');
   btn.disabled = true;

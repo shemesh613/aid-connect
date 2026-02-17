@@ -119,6 +119,11 @@ function navigateTo(viewName) {
     fab.style.display = (viewName === 'dashboard' || viewName === 'volunteers') ? 'flex' : 'none';
   }
 
+  // Initialize map when navigating to it
+  if (viewName === 'map') {
+    onMapView();
+  }
+
   // Scroll to top
   window.scrollTo(0, 0);
 }
@@ -342,6 +347,8 @@ async function openOrgSettings() {
       document.getElementById('org-name').value = data.name || '';
       document.getElementById('org-desc').value = data.description || '';
       document.getElementById('org-phone').value = data.phone || '';
+      const adminCodeEl = document.getElementById('org-admin-code');
+      if (adminCodeEl) adminCodeEl.value = data.adminCode || '';
     }
   } catch (e) {}
 
@@ -364,10 +371,12 @@ async function saveOrgSettings() {
   }
 
   try {
+    const adminCode = document.getElementById('org-admin-code')?.value.trim() || 'admin123';
     await db.collection('settings').doc('org').set({
       name: name,
       description: desc,
       phone: phone,
+      adminCode: adminCode,
       updatedBy: currentUser.uid,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });

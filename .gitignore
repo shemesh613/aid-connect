@@ -9,3 +9,9 @@ functions/node_modules/
 # Environment files
 .env
 .env.local
+
+# Logs
+*.log
+
+# Lock files
+functions/package-lock.json
