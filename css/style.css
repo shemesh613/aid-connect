@@ -54,6 +54,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Enforce RTL text flow without flipping component layout */
+html[dir="rtl"],
+body {
+  direction: rtl;
+}
+
+p, h1, h2, h3, h4, h5, h6, span, label, small, a, button, li, td, th, .toast {
+  direction: rtl;
+  unicode-bidi: plaintext;
+}
+
 /* === Scrollbar === */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -176,6 +187,8 @@ input, select, textarea {
   background: var(--surface);
   transition: border-color 0.2s;
   direction: rtl;
+  text-align: right;
+  unicode-bidi: plaintext;
 }
 
 input:focus, select:focus, textarea:focus {

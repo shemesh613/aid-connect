@@ -1,10 +1,10 @@
 // ============================================
-// Aid Connect - Authentication (Google Sign-In)
+// Aid Connect - Authentication (Email/Password)
 // ============================================
 
 let selectedRole = null;
+let isRegisterMode = false;
 
-// Initialize
 window.addEventListener('DOMContentLoaded', () => {
   checkAuthState();
 });
@@ -17,16 +17,11 @@ function checkAuthState() {
 
   firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
-      // Check if user has a profile
       const doc = await firebase.firestore().collection('users').doc(user.uid).get();
       if (doc.exists) {
         window.location.href = 'app.html';
       } else {
-        // Pre-fill name from Google account
-        const nameInput = document.getElementById('user-name');
-        if (nameInput && user.displayName) {
-          nameInput.value = user.displayName;
-        }
+        document.getElementById('user-name').value = user.displayName || '';
         goToStep('profile');
       }
     } else {
@@ -52,35 +47,92 @@ function hideError() {
   document.getElementById('login-error').style.display = 'none';
 }
 
-// Google Sign In
-async function signInWithGoogle() {
-  const btn = document.getElementById('btn-google-login');
+// Toggle between Login and Register
+function toggleAuthMode() {
+  isRegisterMode = !isRegisterMode;
+  const title = document.getElementById('auth-title');
+  const btn = document.getElementById('btn-auth-submit');
+  const toggle = document.getElementById('auth-toggle');
+  const nameGroup = document.getElementById('auth-name-group');
+
+  if (isRegisterMode) {
+    title.textContent = 'הרשמה';
+    btn.innerHTML = '<span class="material-icons-round">person_add</span> הרשמה';
+    toggle.innerHTML = 'כבר יש לך חשבון? <a href="#" onclick="toggleAuthMode(); return false;">התחבר</a>';
+    nameGroup.style.display = '';
+  } else {
+    title.textContent = 'התחברות';
+    btn.innerHTML = '<span class="material-icons-round">login</span> התחברות';
+    toggle.innerHTML = 'אין לך חשבון? <a href="#" onclick="toggleAuthMode(); return false;">הרשם</a>';
+    nameGroup.style.display = 'none';
+  }
+  hideError();
+}
+
+// Sign In or Register
+async function submitAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const name = document.getElementById('auth-display-name')?.value.trim();
+
+  if (!email) { showError('נא להזין כתובת מייל'); return; }
+  if (!password) { showError('נא להזין סיסמה'); return; }
+  if (password.length < 6) { showError('הסיסמה חייבת להכיל לפחות 6 תווים'); return; }
+  if (isRegisterMode && !name) { showError('נא להזין שם מלא'); return; }
+
+  const btn = document.getElementById('btn-auth-submit');
   btn.disabled = true;
 
   try {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    await firebase.auth().signInWithPopup(provider);
-    // onAuthStateChanged will handle the redirect
-  } catch (error) {
-    console.error('Google sign-in error:', error);
-    let msg = 'שגיאה בהתחברות';
-    if (error.code === 'auth/popup-closed-by-user') {
-      msg = 'ההתחברות בוטלה';
-    } else if (error.code === 'auth/popup-blocked') {
-      msg = 'חלון ההתחברות נחסם. אפשר חלונות קופצים';
+    if (isRegisterMode) {
+      const cred = await firebase.auth().createUserWithEmailAndPassword(email, password);
+      await cred.user.updateProfile({ displayName: name });
+      // checkAuthState will redirect to profile step
+    } else {
+      await firebase.auth().signInWithEmailAndPassword(email, password);
+      // checkAuthState will redirect to app
     }
-    showError(msg);
+  } catch (error) {
+    console.error('Auth error:', error);
+    const messages = {
+      'auth/email-already-in-use': 'כתובת המייל כבר רשומה. נסה להתחבר',
+      'auth/invalid-email': 'כתובת מייל לא תקינה',
+      'auth/user-not-found': 'משתמש לא נמצא. נסה להירשם',
+      'auth/wrong-password': 'סיסמה שגויה',
+      'auth/invalid-credential': 'מייל או סיסמה שגויים',
+      'auth/too-many-requests': 'יותר מדי ניסיונות. נסה שוב מאוחר יותר',
+      'auth/weak-password': 'הסיסמה חלשה מדי. השתמש בלפחות 6 תווים'
+    };
+    showError(messages[error.code] || 'שגיאה בהתחברות: ' + error.message);
   } finally {
     btn.disabled = false;
+  }
+}
+
+// Password reset
+async function resetPassword() {
+  const email = document.getElementById('auth-email').value.trim();
+  if (!email) { showError('הזן מייל כדי לאפס סיסמה'); return; }
+
+  try {
+    await firebase.auth().sendPasswordResetEmail(email);
+    showError('נשלח מייל לאיפוס סיסמה ✉️');
+    document.getElementById('login-error').style.color = 'var(--primary)';
+  } catch (error) {
+    showError('שגיאה בשליחת מייל איפוס');
   }
 }
 
 // Role Selection
 function selectRole(role) {
   selectedRole = role;
-  document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('selected'));
-  document.querySelector(`.role-btn[data-role="${role}"]`).classList.add('selected');
+  document.querySelectorAll('.role-btn').forEach(btn => {
+    btn.classList.remove('selected');
+    btn.setAttribute('aria-checked', 'false');
+  });
+  const selected = document.querySelector(`.role-btn[data-role="${role}"]`);
+  selected.classList.add('selected');
+  selected.setAttribute('aria-checked', 'true');
   document.getElementById('btn-save-profile').disabled = false;
 }
 
@@ -89,14 +141,8 @@ async function saveProfile() {
   const name = document.getElementById('user-name').value.trim();
   const phone = document.getElementById('user-phone').value.trim();
 
-  if (!name) {
-    showError('נא להזין שם');
-    return;
-  }
-  if (!selectedRole) {
-    showError('נא לבחור תפקיד');
-    return;
-  }
+  if (!name) { showError('נא להזין שם'); return; }
+  if (!selectedRole) { showError('נא לבחור תפקיד'); return; }
 
   const btn = document.getElementById('btn-save-profile');
   btn.disabled = true;
@@ -108,7 +154,6 @@ async function saveProfile() {
       name: name,
       email: user.email || '',
       phone: phone,
-      photoURL: user.photoURL || '',
       role: selectedRole,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       tasksTaken: 0,
@@ -118,6 +163,8 @@ async function saveProfile() {
       active: true
     });
 
+    // Update display name
+    await user.updateProfile({ displayName: name });
     window.location.href = 'app.html';
   } catch (error) {
     console.error('Profile Error:', error);
@@ -127,3 +174,10 @@ async function saveProfile() {
     btn.innerHTML = '<span class="material-icons-round">check_circle</span> כניסה';
   }
 }
+
+// Handle Enter key in auth form
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && document.getElementById('step-login')?.classList.contains('active')) {
+    submitAuth();
+  }
+});
