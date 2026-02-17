@@ -591,3 +591,126 @@ function formatDateTime(date) {
     minute: '2-digit'
   });
 }
+
+// ==========================================
+// REQUESTER - Submit Request
+// ==========================================
+
+async function submitRequest() {
+  const title = document.getElementById('task-title-req').value.trim();
+  const desc = document.getElementById('task-desc-req').value.trim();
+  const location = document.getElementById('task-location-req').value.trim();
+  const contact = document.getElementById('task-contact-req').value.trim();
+
+  if (!selectedTaskType) { showToast('נא לבחור סוג קריאה', 'error'); return; }
+  if (!title) { showToast('נא לתאר את הבקשה', 'error'); return; }
+  if (!selectedUrgency) { showToast('נא לבחור דחיפות', 'error'); return; }
+
+  const btn = document.getElementById('btn-submit-request');
+  btn.disabled = true;
+
+  try {
+    const user = auth.currentUser;
+    const userDoc = await db.collection('users').doc(user.uid).get();
+    const userData = userDoc.data();
+
+    const task = {
+      type: selectedTaskType,
+      title: title,
+      description: desc,
+      urgency: selectedUrgency,
+      locationFrom: location,
+      locationTo: '',
+      contact: contact || userData.phone,
+      status: 'open',
+      createdBy: user.uid,
+      createdByName: userData.name,
+      createdByRole: 'requester',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      takenBy: null,
+      takenByName: null,
+      takenAt: null,
+      completedAt: null
+    };
+
+    const docRef = await db.collection('tasks').add(task);
+
+    // Trigger push notification to volunteers
+    triggerPushNotification('task_created', docRef.id, {
+      type: task.type,
+      title: task.title,
+      urgency: task.urgency,
+      createdBy: user.uid,
+      createdByName: userData.name
+    });
+
+    // Clear form
+    document.getElementById('task-title-req').value = '';
+    document.getElementById('task-desc-req').value = '';
+    document.getElementById('task-location-req').value = '';
+    document.getElementById('task-contact-req').value = '';
+    selectedTaskType = null;
+    selectedUrgency = null;
+    document.querySelectorAll('.type-btn, .urgency-btn').forEach(btn => btn.classList.remove('selected'));
+
+    showToast('הקריאה נשלחה! מתנדבים יקבלו התראה 🆘');
+    navigateTo('my-requests');
+
+  } catch (error) {
+    console.error('Submit request error:', error);
+    showToast('שגיאה בשליחת הקריאה', 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// Listen to requester's own requests
+function listenToMyRequests(userId) {
+  db.collection('tasks')
+    .where('createdBy', '==', userId)
+    .orderBy('createdAt', 'desc')
+    .onSnapshot((snapshot) => {
+      const requests = [];
+      snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
+      renderMyRequests(requests);
+    });
+}
+
+function renderMyRequests(requests) {
+  const container = document.getElementById('my-requests-list');
+  const empty = document.getElementById('my-requests-empty');
+
+  if (requests.length === 0) {
+    container.innerHTML = '';
+    if (empty) empty.style.display = '';
+    return;
+  }
+
+  if (empty) empty.style.display = 'none';
+
+  container.innerHTML = requests.map(task => {
+    const type = TASK_TYPES[task.type] || TASK_TYPES.general;
+    const time = task.createdAt ? formatTime(task.createdAt.toDate()) : '';
+    const statusColors = { open: '#1976D2', taken: '#FB8C00', completed: '#43A047', cancelled: '#999' };
+    const statusIcons = { open: 'hourglass_top', taken: 'person', completed: 'check_circle', cancelled: 'cancel' };
+
+    return `
+      <div class="task-card ${task.status === 'open' ? 'urgent-' + task.urgency : task.status}" onclick="showTaskDetail('${task.id}')">
+        <div class="task-header">
+          <span class="task-type">${type.icon} ${type.label}</span>
+          <span style="display:flex; align-items:center; gap:4px; font-size:0.8rem; color:${statusColors[task.status] || '#999'};">
+            <span class="material-icons-round" style="font-size:16px;">${statusIcons[task.status] || 'info'}</span>
+            ${STATUS_LABELS[task.status] || task.status}
+          </span>
+        </div>
+        <div class="task-title">${escapeHtml(task.title)}</div>
+        ${task.takenByName ? `<div style="font-size:0.85rem; color:var(--text-secondary); margin-top:4px;">🙋 ${escapeHtml(task.takenByName)} לקח/ה את הקריאה</div>` : ''}
+        <div class="task-meta">
+          <span class="task-meta-item">
+            <span class="material-icons-round">schedule</span>
+            ${time}
+          </span>
+        </div>
+      </div>`;
+  }).join('');
+}

@@ -49,16 +49,22 @@ async function initApp() {
 function setupUI() {
   const role = currentUserData.role;
 
-  // Show correct navigation
+  // Hide all navs first
+  document.getElementById('nav-admin').style.display = 'none';
+  document.getElementById('nav-volunteer').style.display = 'none';
+  document.getElementById('nav-requester').style.display = 'none';
+  document.getElementById('fab-create').style.display = 'none';
+
+  // Show correct navigation by role
   if (role === 'admin') {
     document.getElementById('nav-admin').style.display = 'flex';
-    document.getElementById('nav-volunteer').style.display = 'none';
     document.getElementById('fab-create').style.display = 'flex';
     navigateTo('dashboard');
+  } else if (role === 'requester') {
+    document.getElementById('nav-requester').style.display = 'flex';
+    navigateTo('submit');
   } else {
     document.getElementById('nav-volunteer').style.display = 'flex';
-    document.getElementById('nav-admin').style.display = 'none';
-    document.getElementById('fab-create').style.display = 'none';
     navigateTo('tasks');
   }
 
@@ -86,7 +92,8 @@ function updateProfileUI() {
   const createdEl = document.getElementById('profile-tasks-created');
 
   if (nameEl) nameEl.textContent = currentUserData.name;
-  if (roleEl) roleEl.textContent = currentUserData.role === 'admin' ? 'מנהל' : 'מתנדב';
+  const roleNames = { admin: 'מנהל', volunteer: 'מתנדב', requester: 'מבקש עזרה' };
+  if (roleEl) roleEl.textContent = roleNames[currentUserData.role] || currentUserData.role;
   if (avatarEl) avatarEl.textContent = (currentUserData.name || '?').charAt(0);
   if (takenEl) takenEl.textContent = currentUserData.tasksTaken || 0;
   if (completedEl) completedEl.textContent = currentUserData.tasksCompleted || 0;
@@ -141,6 +148,8 @@ function setupRealTimeListeners() {
   } else if (role === 'admin') {
     listenToAllTasks();
     listenToVolunteers();
+  } else if (role === 'requester') {
+    listenToMyRequests(currentUser.uid);
   }
 
   // Listen to own profile changes

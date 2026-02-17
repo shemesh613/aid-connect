@@ -115,6 +115,80 @@
     </div>
 
     <!-- ==================== -->
+    <!-- REQUESTER VIEWS      -->
+    <!-- ==================== -->
+
+    <!-- View: Submit Request (Requester) -->
+    <div id="view-submit" class="view" role="region" aria-label="הגשת קריאה לסיוע">
+      <div class="create-task-section">
+        <h2>
+          <span class="material-icons-round" aria-hidden="true">sos</span>
+          קריאה לסיוע
+        </h2>
+
+        <div class="input-group">
+          <label id="req-type-label">סוג הקריאה</label>
+          <div class="task-type-selector" role="radiogroup" aria-labelledby="req-type-label">
+            <button class="type-btn" data-type="medical" onclick="selectTaskType('medical')" role="radio" aria-checked="false">🏥 רפואה</button>
+            <button class="type-btn" data-type="transport" onclick="selectTaskType('transport')" role="radio" aria-checked="false">🚗 הסעה</button>
+            <button class="type-btn" data-type="shopping" onclick="selectTaskType('shopping')" role="radio" aria-checked="false">🛒 קניות</button>
+            <button class="type-btn" data-type="general" onclick="selectTaskType('general')" role="radio" aria-checked="false">🤝 עזרה</button>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="task-title-req">מה אתה צריך?</label>
+          <input type="text" id="task-title-req" placeholder="תיאור קצר של הבקשה" aria-required="true">
+        </div>
+
+        <div class="input-group">
+          <label for="task-desc-req">פרטים נוספים</label>
+          <textarea id="task-desc-req" placeholder="מידע שיעזור למתנדב לעזור לך..."></textarea>
+        </div>
+
+        <div class="input-group">
+          <label id="req-urgency-label">דחיפות</label>
+          <div class="urgency-selector" role="radiogroup" aria-labelledby="req-urgency-label">
+            <button class="urgency-btn high" data-urgency="high" onclick="selectUrgency('high')" role="radio" aria-checked="false">🔴 דחוף</button>
+            <button class="urgency-btn medium" data-urgency="medium" onclick="selectUrgency('medium')" role="radio" aria-checked="false">🟠 בינוני</button>
+            <button class="urgency-btn low" data-urgency="low" onclick="selectUrgency('low')" role="radio" aria-checked="false">🟢 רגיל</button>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="task-location-req">כתובת</label>
+          <input type="text" id="task-location-req" placeholder="היכן צריך את העזרה?">
+        </div>
+
+        <div class="input-group">
+          <label for="task-contact-req">טלפון ליצירת קשר</label>
+          <input type="tel" id="task-contact-req" placeholder="050-1234567" autocomplete="tel">
+        </div>
+
+        <button id="btn-submit-request" class="btn btn-primary btn-full" onclick="submitRequest()" aria-label="שלח קריאה">
+          <span class="material-icons-round" aria-hidden="true">send</span>
+          שלח קריאה
+        </button>
+      </div>
+    </div>
+
+    <!-- View: My Requests (Requester) -->
+    <div id="view-my-requests" class="view" role="region" aria-label="הקריאות שלי">
+      <div class="section-header">
+        <div class="section-title">
+          <span class="material-icons-round" aria-hidden="true">list_alt</span>
+          <span>הקריאות שלי</span>
+        </div>
+      </div>
+      <div id="my-requests-list" class="task-list" role="list" aria-live="polite"></div>
+      <div id="my-requests-empty" class="empty-state" style="display:none;">
+        <span class="material-icons-round" aria-hidden="true">inbox</span>
+        <p>עדיין לא הגשת קריאות</p>
+        <small>לחץ "קריאה חדשה" כדי לבקש עזרה</small>
+      </div>
+    </div>
+
+    <!-- ==================== -->
     <!-- ADMIN VIEWS          -->
     <!-- ==================== -->
 
@@ -285,6 +359,22 @@
     </div>
 
   </main>
+
+  <!-- Bottom Navigation - Requester -->
+  <nav id="nav-requester" class="bottom-nav" style="display:none;" role="navigation" aria-label="ניווט ראשי - מבקש עזרה">
+    <button class="nav-item active" data-view="submit" onclick="navigateTo('submit')" aria-label="הגשת קריאה">
+      <span class="material-icons-round" aria-hidden="true">sos</span>
+      <span>קריאה חדשה</span>
+    </button>
+    <button class="nav-item" data-view="my-requests" onclick="navigateTo('my-requests')" aria-label="הקריאות שלי">
+      <span class="material-icons-round" aria-hidden="true">list_alt</span>
+      <span>הקריאות שלי</span>
+    </button>
+    <button class="nav-item" data-view="profile" onclick="navigateTo('profile')" aria-label="פרופיל">
+      <span class="material-icons-round" aria-hidden="true">person</span>
+      <span>פרופיל</span>
+    </button>
+  </nav>
 
   <!-- Bottom Navigation - Volunteer -->
   <nav id="nav-volunteer" class="bottom-nav" style="display:none;" role="navigation" aria-label="ניווט ראשי - מתנדב">

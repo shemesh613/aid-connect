@@ -73,6 +73,11 @@
       <div class="input-group">
         <label id="role-label">תפקיד</label>
         <div class="role-selector" role="radiogroup" aria-labelledby="role-label">
+          <button class="role-btn" data-role="requester" onclick="selectRole('requester')" role="radio" aria-checked="false" aria-label="מבקש עזרה - הגשת קריאה לסיוע">
+            <span class="material-icons-round" aria-hidden="true">support</span>
+            <span>מבקש עזרה</span>
+            <small>הגשת קריאה לסיוע</small>
+          </button>
           <button class="role-btn" data-role="volunteer" onclick="selectRole('volunteer')" role="radio" aria-checked="false" aria-label="מתנדב - קבלת משימות ועזרה">
             <span class="material-icons-round" aria-hidden="true">favorite</span>
             <span>מתנדב</span>
