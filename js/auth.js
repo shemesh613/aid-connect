@@ -150,35 +150,19 @@ async function saveProfile() {
   if (!name) { showError('נא להזין שם'); return; }
   if (!selectedRole) { showError('נא לבחור תפקיד'); return; }
 
-  // Admin code verification
+  // Admin code verification (before creating profile)
+  let isFirstAdmin = false;
   if (selectedRole === 'admin') {
     const adminCode = document.getElementById('admin-code')?.value.trim();
     try {
       const orgDoc = await firebase.firestore().collection('settings').doc('org').get();
       const savedCode = orgDoc.exists ? orgDoc.data().adminCode : null;
-      // If no admin code set yet (first admin), allow. Otherwise verify.
       if (savedCode && adminCode !== savedCode) {
         showError('קוד מנהל שגוי'); return;
       }
-      // If first admin - set a default code
-      if (!savedCode) {
-        await firebase.firestore().collection('settings').doc('org').set({
-          name: 'Aid Connect',
-          description: 'שיגור משימות לקהילה',
-          adminCode: 'admin123',
-          phone: ''
-        });
-      }
+      if (!savedCode) isFirstAdmin = true;
     } catch (e) {
-      // Settings collection might not exist yet - first admin
-      try {
-        await firebase.firestore().collection('settings').doc('org').set({
-          name: 'Aid Connect',
-          description: 'שיגור משימות לקהילה',
-          adminCode: 'admin123',
-          phone: ''
-        });
-      } catch(e2) {}
+      isFirstAdmin = true;
     }
   }
 
@@ -188,6 +172,8 @@ async function saveProfile() {
 
   try {
     const user = firebase.auth().currentUser;
+
+    // Step 1: Create user profile FIRST (so Firestore rules can verify role)
     await firebase.firestore().collection('users').doc(user.uid).set({
       name: name,
       email: user.email || '',
@@ -200,6 +186,20 @@ async function saveProfile() {
       fcmToken: null,
       active: true
     });
+
+    // Step 2: If first admin, set default org settings (now profile exists so rules pass)
+    if (isFirstAdmin) {
+      try {
+        await firebase.firestore().collection('settings').doc('org').set({
+          name: 'Aid Connect',
+          description: 'שיגור משימות לקהילה',
+          adminCode: 'admin123',
+          phone: ''
+        });
+      } catch(e) {
+        console.log('Could not set initial org settings:', e);
+      }
+    }
 
     // Update display name
     await user.updateProfile({ displayName: name });
