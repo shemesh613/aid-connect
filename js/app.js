@@ -171,10 +171,20 @@ function listenToVolunteers() {
     .where('active', '==', true)
     .onSnapshot((snapshot) => {
       const volunteers = [];
-      snapshot.forEach(doc => {
-        volunteers.push({ id: doc.id, ...doc.data() });
-      });
+      snapshot.forEach(doc => volunteers.push({ id: doc.id, ...doc.data() }));
       renderVolunteers(volunteers);
+    }, (error) => {
+      console.error('Volunteers error, using fallback:', error);
+      db.collection('users')
+        .where('role', '==', 'volunteer')
+        .onSnapshot((snapshot) => {
+          const volunteers = [];
+          snapshot.forEach(doc => {
+            const d = doc.data();
+            if (d.active !== false) volunteers.push({ id: doc.id, ...d });
+          });
+          renderVolunteers(volunteers);
+        });
     });
 }
 

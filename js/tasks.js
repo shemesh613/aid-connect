@@ -271,6 +271,17 @@ function listenToTasks() {
     renderTasks(tasks);
   }, (error) => {
     console.error('Listen tasks error:', error);
+    // Fallback: query without orderBy (works without composite index)
+    console.log('Trying fallback query...');
+    tasksUnsubscribe = db.collection('tasks')
+      .where('status', 'in', ['open', 'taken'])
+      .onSnapshot((snapshot) => {
+        const tasks = [];
+        snapshot.forEach(doc => tasks.push({ id: doc.id, ...doc.data() }));
+        // Sort client-side
+        tasks.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+        renderTasks(tasks);
+      });
   });
 }
 
@@ -281,10 +292,18 @@ function listenToMyTasks(userId) {
     .orderBy('takenAt', 'desc')
     .onSnapshot((snapshot) => {
       const tasks = [];
-      snapshot.forEach(doc => {
-        tasks.push({ id: doc.id, ...doc.data() });
-      });
+      snapshot.forEach(doc => tasks.push({ id: doc.id, ...doc.data() }));
       renderMyTasks(tasks);
+    }, (error) => {
+      console.error('My tasks error, using fallback:', error);
+      db.collection('tasks')
+        .where('takenBy', '==', userId)
+        .onSnapshot((snapshot) => {
+          const tasks = [];
+          snapshot.forEach(doc => tasks.push({ id: doc.id, ...doc.data() }));
+          tasks.sort((a, b) => (b.takenAt?.toMillis?.() || 0) - (a.takenAt?.toMillis?.() || 0));
+          renderMyTasks(tasks);
+        });
     });
 }
 
@@ -295,11 +314,20 @@ function listenToAllTasks() {
     .limit(50)
     .onSnapshot((snapshot) => {
       const tasks = [];
-      snapshot.forEach(doc => {
-        tasks.push({ id: doc.id, ...doc.data() });
-      });
+      snapshot.forEach(doc => tasks.push({ id: doc.id, ...doc.data() }));
       renderAdminTasks(tasks);
       updateStats(tasks);
+    }, (error) => {
+      console.error('Admin tasks error, using fallback:', error);
+      db.collection('tasks')
+        .limit(50)
+        .onSnapshot((snapshot) => {
+          const tasks = [];
+          snapshot.forEach(doc => tasks.push({ id: doc.id, ...doc.data() }));
+          tasks.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+          renderAdminTasks(tasks);
+          updateStats(tasks);
+        });
     });
 }
 
@@ -673,6 +701,16 @@ function listenToMyRequests(userId) {
       const requests = [];
       snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
       renderMyRequests(requests);
+    }, (error) => {
+      console.error('My requests error, using fallback:', error);
+      db.collection('tasks')
+        .where('createdBy', '==', userId)
+        .onSnapshot((snapshot) => {
+          const requests = [];
+          snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
+          requests.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+          renderMyRequests(requests);
+        });
     });
 }
 

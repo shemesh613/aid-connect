@@ -53,24 +53,32 @@ function initMap() {
 function loadTasksOnMap() {
   if (!taskMap) return;
 
+  const handleSnapshot = (snapshot) => {
+    // Clear old markers
+    mapMarkers.forEach(m => taskMap.removeLayer(m));
+    mapMarkers = [];
+
+    const tasks = [];
+    snapshot.forEach(doc => tasks.push({ id: doc.id, ...doc.data() }));
+
+    // Filter to open only (in case fallback returns all)
+    const openTasks = tasks.filter(t => t.status === 'open');
+
+    // Geocode and place markers
+    openTasks.forEach(task => {
+      if (task.lat && task.lng) {
+        addTaskMarker(task, task.lat, task.lng);
+      } else if (task.locationFrom) {
+        geocodeAndMark(task, task.locationFrom);
+      }
+    });
+  };
+
   db.collection('tasks')
     .where('status', '==', 'open')
-    .onSnapshot((snapshot) => {
-      // Clear old markers
-      mapMarkers.forEach(m => taskMap.removeLayer(m));
-      mapMarkers = [];
-
-      const tasks = [];
-      snapshot.forEach(doc => tasks.push({ id: doc.id, ...doc.data() }));
-
-      // Geocode and place markers
-      tasks.forEach(task => {
-        if (task.lat && task.lng) {
-          addTaskMarker(task, task.lat, task.lng);
-        } else if (task.locationFrom) {
-          geocodeAndMark(task, task.locationFrom);
-        }
-      });
+    .onSnapshot(handleSnapshot, (error) => {
+      console.error('Map tasks error, using fallback:', error);
+      db.collection('tasks').onSnapshot(handleSnapshot);
     });
 }
 
