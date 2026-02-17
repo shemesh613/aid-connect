@@ -94,16 +94,30 @@ async function submitAuth() {
     }
   } catch (error) {
     console.error('Auth error:', error);
+
+    // Auto-switch: if login fails with "user not found", switch to register
+    if (!isRegisterMode && (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential')) {
+      toggleAuthMode();
+      showError('המשתמש לא נמצא - עבר למצב הרשמה. הזן שם מלא ולחץ הרשמה');
+      btn.disabled = false;
+      return;
+    }
+
+    // Auto-switch: if register fails with "already exists", switch to login
+    if (isRegisterMode && error.code === 'auth/email-already-in-use') {
+      toggleAuthMode();
+      showError('המייל כבר רשום - עבר למצב התחברות. לחץ התחברות');
+      btn.disabled = false;
+      return;
+    }
+
     const messages = {
-      'auth/email-already-in-use': 'כתובת המייל כבר רשומה. נסה להתחבר',
       'auth/invalid-email': 'כתובת מייל לא תקינה',
-      'auth/user-not-found': 'משתמש לא נמצא. נסה להירשם',
       'auth/wrong-password': 'סיסמה שגויה',
-      'auth/invalid-credential': 'מייל או סיסמה שגויים',
       'auth/too-many-requests': 'יותר מדי ניסיונות. נסה שוב מאוחר יותר',
       'auth/weak-password': 'הסיסמה חלשה מדי. השתמש בלפחות 6 תווים'
     };
-    showError(messages[error.code] || 'שגיאה בהתחברות: ' + error.message);
+    showError(messages[error.code] || 'שגיאה: ' + error.message);
   } finally {
     btn.disabled = false;
   }
